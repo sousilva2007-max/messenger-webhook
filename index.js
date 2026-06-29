@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 
-const VERIFY_TOKEN = 'meu_token_secreto_123';
+const VERIFY_TOKEN = 'EAAsvpr33mdkBR6ZBRtyOG2t3HLzhHaqfg6erNHv4Rkd7db93ZA9Q40nUyU995boMTFJaUQwsamYm5DjrcKiuXH8FBXRqKsnJbAKWDM4dASDP5xktZADZCbFqivKXlksUoJERzehuOB5GtzezG2IdcvLGVxZAnPUjsbqZCjC23eLS6IH93gSVahAvNqDzKG6kjfrwyypLuc6wcQi61UFxm2rzpkzsgkzbu3tReTLchfmulWSJDghtTLflcsVtW5k9ORxrYwSMmkc6uPodDo9FDlsgZDZD';
 
 app.get('/webhook', (req, res) => {
   const mode = req.query['hub.mode'];
