@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 
-const VERIFY_TOKEN = 'EAAsvpr33mdkBR4w2DZBMoZC6IHeccoUiwZALk9eveh1IMzFmiXPYnBcws0oLTFt5eYWLLeuUu2gngpIOlkCZA9Sie2ZBxpEx8rVZCFhLbjU3nJgjchmFQMhEPpj0WCSWTrx2z7THkZCHvQepmxhZAZBz8j09I0nzqQkHUQRGwpB7cMjfKKYZB1tZATjZBZCM9rmRS9GjdQcyfGx8IsWih04xF5RiCrO9LRaqYJhRVNvb0dXudGEW13IgJ8XDlfdL2ZA4oZCNKx66FxiZBulhlOFMp6wz6PYg';
+const VERIFY_TOKEN = 'EAAsvpr33mdkBRyD1rWmy8BdqZCj7ZBggKJHquwYceGPJUpvVexF29HxPTeYNCfZADHSFmZBHjBS61SjMXk2ImQnPxgMondby03W8SoDAPpaX0Ife2ZC9nOQqwZBUSHfUIPzZCNfRg1UUOVXWV9g7B68BwSxEXEUza3OaBZAln3i2rBcgxCmHAluUOl2zXEHpmnzPth2hPB7zyFIPT4ThMFIDVDev8kVXTHvzJPTAoIC3A00ltR7RxtktRMTzl2siOYmNYgcxG1mQxhe1hRJidURg';
 
 app.get('/webhook', (req, res) => {
   const mode = req.query['hub.mode'];
