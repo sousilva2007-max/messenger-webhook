@@ -4,8 +4,7 @@ app.use(express.json());
 
 const VERIFY_TOKEN = 'EAAsvpr33mdkBR6ZBRtyOG2t3HLzhHaqfg6erNHv4Rkd7db93ZA9Q40nUyU995boMTFJaUQwsamYm5DjrcKiuXH8FBXRqKsnJbAKWDM4dASDP5xktZADZCbFqivKXlksUoJERzehuOB5GtzezG2IdcvLGVxZAnPUjsbqZCjC23eLS6IH93gSVahAvNqDzKG6kjfrwyypLuc6wcQi61UFxm2rzpkzsgkzbu3tReTLchfmulWSJDghtTLflcsVtW5k9ORxrYwSMmkc6uPodDo9FDlsgZDZD';
 const PAGE_ACCESS_TOKEN = 'EAAMmYzdHBsUBR3oFvBHnpt6EfQrP53TMuPfOESNDc5ZBlke69LjdJfy85y8QIZCZA4ZArhOXicxYHs5Q9CJwPCkuZA0zZB7FXbcZAlgNEdHmxI6nn40G1IYGTnyT7XjtAjPoVqiuoeQYlnp4ZAYTNh0ewK8yjsavGmo3MzjJYvVovVXCH7XWw7IZBP6OalZCpIy1vQgKK83gZDZD';
-const ANTHROPIC_API_KEY = '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';
-console.log('API KEY começa com:', ANTHROPIC_API_KEY.substring(0, 20));
+const GROQ_API_KEY = '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';
 
 const SYSTEM_PROMPT = `És um assistente virtual da Mais Informática, uma empresa portuguesa de tecnologia e informática.
 A empresa vende e suporta os seguintes produtos e serviços:
@@ -32,27 +31,28 @@ async function sendMessage(recipientId, text) {
   });
 }
 
-async function askClaude(userMessage) {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+async function askGroq(userMessage) {
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01'
+      'Authorization': `Bearer ${GROQ_API_KEY}`
     },
     body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
+      model: 'llama3-8b-8192',
       max_tokens: 500,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: userMessage }]
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: userMessage }
+      ]
     })
   });
   const data = await response.json();
-  console.log('STATUS:', response.status);
-  console.log('RESPOSTA:', JSON.stringify(data));
+  console.log('RESPOSTA GROQ:', JSON.stringify(data));
   if (data.error) throw new Error(data.error.message);
-  return data.content[0].text;
+  return data.choices[0].message.content;
 }
+
 app.get('/webhook', (req, res) => {
   const mode = req.query['hub.mode'];
   const token = req.query['hub.verify_token'];
@@ -73,7 +73,7 @@ app.post('/webhook', async (req, res) => {
       const message = event.message?.text;
       if (message) {
         try {
-          const resposta = await askClaude(message);
+          const resposta = await askGroq(message);
           await sendMessage(senderId, resposta);
         } catch (err) {
           console.error('Erro:', err);
