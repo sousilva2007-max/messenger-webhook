@@ -4,7 +4,7 @@ app.use(express.json());
 
 const VERIFY_TOKEN = 'EAAsvpr33mdkBR6ZBRtyOG2t3HLzhHaqfg6erNHv4Rkd7db93ZA9Q40nUyU995boMTFJaUQwsamYm5DjrcKiuXH8FBXRqKsnJbAKWDM4dASDP5xktZADZCbFqivKXlksUoJERzehuOB5GtzezG2IdcvLGVxZAnPUjsbqZCjC23eLS6IH93gSVahAvNqDzKG6kjfrwyypLuc6wcQi61UFxm2rzpkzsgkzbu3tReTLchfmulWSJDghtTLflcsVtW5k9ORxrYwSMmkc6uPodDo9FDlsgZDZD';
 const PAGE_ACCESS_TOKEN = 'EAAMmYzdHBsUBR3oFvBHnpt6EfQrP53TMuPfOESNDc5ZBlke69LjdJfy85y8QIZCZA4ZArhOXicxYHs5Q9CJwPCkuZA0zZB7FXbcZAlgNEdHmxI6nn40G1IYGTnyT7XjtAjPoVqiuoeQYlnp4ZAYTNh0ewK8yjsavGmo3MzjJYvVovVXCH7XWw7IZBP6OalZCpIy1vQgKK83gZDZD';
-const ANTHROPIC_API_KEY = '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';
+const ANTHROPIC_API_KEY = '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';
 
 const SYSTEM_PROMPT = `És um assistente virtual da Mais Informática, uma empresa portuguesa de tecnologia e informática.
 A empresa vende e suporta os seguintes produtos e serviços:
