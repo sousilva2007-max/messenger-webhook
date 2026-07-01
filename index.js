@@ -47,9 +47,11 @@ async function askClaude(userMessage) {
     })
   });
   const data = await response.json();
+  console.log('STATUS:', response.status);
+  console.log('RESPOSTA:', JSON.stringify(data));
+  if (data.error) throw new Error(data.error.message);
   return data.content[0].text;
 }
-
 app.get('/webhook', (req, res) => {
   const mode = req.query['hub.mode'];
   const token = req.query['hub.verify_token'];
