@@ -4,6 +4,7 @@ app.use(express.json());
 
 const VERIFY_TOKEN = 'EAAOnAA33cxEBR1vUe47wsS5F0jxCsSniF4l1DyrTZC4fXfrjPI78MP2rRavK9OEaGSMVMwpDY8vadEKOIpDuOe3BlPlblQ5Hz0RIbwlQoC0ZAarTCEBtvsn6XZB7Y4Jol8iVaWtezToRNZB9giNLIcR37NrEE6V266chK5RRi6DoL0ch57oK3sRMbzPZA9gIBaTZCxxrVzCYwKUZC4kIwulB45vG6RXek27ncZBNRntMjsNIC4na8EgPaNmDNZAr9iu7vkm9ZBG8vXy8zBso5sxqbH';
 const PAGE_ACCESS_TOKEN = 'EAAOnAA33cxEBR6esqMjJVuUXUddHx10w30At2HXIwPDvgpaegVymRMVW3kCustZBSrJ1GR0DTswOZBLidX3QpPOqGZAZCv7ROkxpqja44ob6Q2Gw4ZAjigzBKdeSdAHl1cxZAe0xXXgUcZCqegFf3zwspF7viXtOgiU5ZA76967EEKDlBlMWg5yVhpN9JEKxdJ8yL1FNywZDZD';
+const INSTAGRAM_TOKEN = 'IGAAYUZCBshYplBZAFlscXlIRUR3UmExLUZAzS2lqTUVRRDlOZAy1nX2NWZAFR0RUZAyOGhNcmNhc3htUHVCZAWpnNC0zVHhNVTNBVy1nUU5JSkUxMUloRU1Ya0t6VWJSQ2tNUk01QjdDdVdPcVFGU3JmQVNnczVBX1VETjBUX19kLXZAEYwZDZD';
 const GROQ_API_KEY = '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';
 
 const SYSTEM_PROMPT = `És um assistente virtual da Mais Informática, uma empresa portuguesa de tecnologia e informática.
@@ -23,14 +24,6 @@ A empresa vende e suporta os seguintes produtos e serviços:
 Responde sempre em português europeu de forma simpática, profissional e concisa.
 Se não souberes a resposta, sugere que o cliente contacte a empresa diretamente.`;
 
-async function sendMessage(recipientId, text) {
-  await fetch(`https://graph.facebook.com/v19.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ recipient: { id: recipientId }, message: { text } })
-  });
-}
-
 async function askGroq(userMessage) {
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
@@ -48,9 +41,24 @@ async function askGroq(userMessage) {
     })
   });
   const data = await response.json();
-  console.log('RESPOSTA GROQ:', JSON.stringify(data));
   if (data.error) throw new Error(data.error.message);
   return data.choices[0].message.content;
+}
+
+async function sendMessenger(recipientId, text) {
+  await fetch(`https://graph.facebook.com/v19.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ recipient: { id: recipientId }, message: { text } })
+  });
+}
+
+async function sendInstagram(recipientId, text) {
+  await fetch(`https://graph.facebook.com/v19.0/me/messages?access_token=${INSTAGRAM_TOKEN}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ recipient: { id: recipientId }, message: { text } })
+  });
 }
 
 app.get('/webhook', (req, res) => {
@@ -66,25 +74,48 @@ app.get('/webhook', (req, res) => {
 
 app.post('/webhook', async (req, res) => {
   const body = req.body;
+
+  // MESSENGER
   if (body.object === 'page') {
     for (const entry of body.entry) {
-      const event = entry.messaging[0];
+      const event = entry.messaging?.[0];
+      if (!event) continue;
       const senderId = event.sender.id;
       const message = event.message?.text;
       if (message) {
         try {
           const resposta = await askGroq(message);
-          await sendMessage(senderId, resposta);
+          await sendMessenger(senderId, resposta);
         } catch (err) {
-          console.error('Erro:', err);
-          await sendMessage(senderId, 'Desculpe, ocorreu um erro. Por favor contacte-nos pelo +351 256 044 402.');
+          console.error('Erro Messenger:', err);
+          await sendMessenger(senderId, 'Desculpe, ocorreu um erro. Contacte-nos pelo +351 256 044 402.');
         }
       }
     }
-    res.status(200).send('EVENT_RECEIVED');
-  } else {
-    res.sendStatus(404);
+    return res.status(200).send('EVENT_RECEIVED');
   }
+
+  // INSTAGRAM
+  if (body.object === 'instagram') {
+    for (const entry of body.entry) {
+      const event = entry.messaging?.[0];
+      if (!event) continue;
+      const senderId = event.sender.id;
+      const message = event.message?.text;
+      if (message) {
+        try {
+          const resposta = await askGroq(message);
+          await sendInstagram(senderId, resposta);
+        } catch (err) {
+          console.error('Erro Instagram:', err);
+          await sendInstagram(senderId, 'Desculpe, ocorreu um erro. Contacte-nos pelo +351 256 044 402.');
+        }
+      }
+    }
+    return res.status(200).send('EVENT_RECEIVED');
+  }
+
+  res.sendStatus(404);
 });
 
 const PORT = process.env.PORT || 3000;
